@@ -10,12 +10,14 @@ pub trait Storage {
 
 #[cfg(test)]
 mod tests {
-    fn testStorage<T: Storage>(s: T){
+    use ::file_storage;
 
+    fn testStorage<T: ::Storage>(s: T){
+        
     }
 
     #[test]
     fn readW_wite() {
-        assert_eq!(2 + 2, 4);
+        testStorage(file_storage::FileStorage::new("filename"));
     }   
 }
