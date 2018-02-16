@@ -3,6 +3,7 @@ use std::collections::HashMap;
 use std::vec::Vec;
 
 use ::Storage;
+use ::Error;
 
 pub struct FileStorage {
     file: File,
@@ -24,13 +25,15 @@ impl FileStorage {
 }
 
 impl Storage for FileStorage {
-    fn read<T: From<Box<[u8]>>>(&self, location: &str) -> Option<T> {
-        match self.data.get(&String::from(location)) {
-            Some(d) => Some(From::<Box<[u8]>>::from(d.clone())),
-            None => None
+    fn read(&self, location: &String) -> Result<Box<[u8]>,Error> {
+        match self.data.get(location) {
+            Some(d) => Ok(d.clone()),
+            None => Err(Error {
+                msg: String::from(format!("Could not find any data at location \"{}\"", location))
+            })
         }
     }
-    fn write<T: From<Box<[u8]>>>(&mut self, location: &str, data: T) -> bool where Box<[u8]>: From<T> {
+    fn write(&mut self, location: &String, data: &[u8]) -> Result<(),Error> {
         //write to file
 
         match self.data.insert(String::from(location), data.into()) {

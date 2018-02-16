@@ -1,23 +1,25 @@
-use std::vec::Vec;
-use std::convert::{From,Into};
+extern crate byteorder;
 
-pub mod file_storage;
+pub mod hash_file;
 
 pub trait Storage {
-    fn read<T: From<Box<[u8]>>>(&self, location: &str) -> Option<T>;
-    fn write<T: From<Box<[u8]>>>(&mut self, location: &str, data: T) -> bool where Box<[u8]>: From<T>;
+    fn read(&self, location: &String) -> Result<Box<[u8]>,std::error::Error>;
+    fn write(&mut self, location: &String, data: &[u8]) -> Result<(),Error>;
 }
 
-#[cfg(test)]
-mod tests {
-    use ::file_storage;
+#[derive(Debug)]
+pub struct Error {
+    msg: String,
+}
 
-    fn testStorage<T: ::Storage>(s: T){
-        
+impl std::fmt::Display for Error {
+    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
+        write!(f, "Storage Error: {}", self.msg)
     }
+}
 
-    #[test]
-    fn readW_wite() {
-        testStorage(file_storage::FileStorage::new("filename"));
-    }   
+impl std::error::Error for Error {
+    fn description(&self) -> &str {
+        self.msg.as_str()
+    }
 }
